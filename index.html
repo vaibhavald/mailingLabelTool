@@ -133,8 +133,8 @@
     <h1>Mailing Label Generator</h1>
     <form>
         <label for="from_address">From:</label>
-        <textarea id="from_address" name="from_address"
-            rows="3" disabled="disabled">Udai Srivastava<br>Kumud Cottage, 503K/1R, Rajrooppur<br>Prayagraj-211011, Mobile: +91-9415267861</textarea>
+        <textarea id="from_address" name="from_address" rows="3"
+            disabled="disabled">Udai Srivastava<br>Kumud Cottage, 503K/1R, Rajrooppur<br>Prayagraj-211011, Mobile: +91-9415267861</textarea>
         <br>
         <label for="to_addresses">To:</label>
         <textarea id="to_addresses" name="to_addresses" rows="10"></textarea>
@@ -275,18 +275,11 @@
             printWindow.document.write(labelContainer.innerHTML);
             printWindow.document.write('</body></html>');
 
-            // Wait for the window content to load before triggering print
-            printWindow.document.addEventListener('DOMContentLoaded', function () {
-                // Print the mailing labels
-                setTimeout(function () {
-                    printWindow.print();
+            // Print the mailing labels
+            printWindow.print();
 
-                    // Close the new window after a short delay
-                    setTimeout(function () {
-                        printWindow.close();
-                    }, 100);
-                }, 100);
-            });
+            // Close the new window
+            printWindow.close();
         }
 
     </script>
