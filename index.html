@@ -263,35 +263,121 @@
 
 
         function printLabels() {
-  // Get mailing labels container
-  var labelContainer = document.getElementById('label_container');
+            // Get mailing labels container
+            var labelContainer = document.getElementById('label_container');
 
-  // Create a new window or iframe to display the mailing labels
-  var printWindow = window.open('', '', 'height=600,width=800');
+            // Create a new tab
+            var printWindow = window.open('', '_blank');
 
-  // Write mailing labels HTML to new window
-  printWindow.document.write('<html><head><title>Mailing Labels</title>');
-  printWindow.document.write('<link rel="stylesheet" type="text/css" href="print-styles.css">');
-  printWindow.document.write('</head><body>');
-  printWindow.document.write(labelContainer.innerHTML);
-  printWindow.document.write('</body></html>');
+            // Write mailing labels HTML to new tab
+            printWindow.document.write('<html><head><title>Mailing Labels</title>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(labelContainer.innerHTML);
+            printWindow.document.write('</body></html>');
 
-  // Inject print styles into the new window or iframe
-  var styles = `
+            // Inject print button and styles into the new tab
+            var styles = `
     <style>
-      @media print {
-        /* Add print-specific styles here */
+      .print-button {
+        margin: 20px;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .print-button:hover {
+        background-color: #45a049;
       }
     </style>
   `;
-  printWindow.document.head.insertAdjacentHTML('beforeend', styles);
+            var printButton = '<button class="print-button" onclick="window.print()">Print</button>';
+            printWindow.document.head.insertAdjacentHTML('beforeend', styles);
+            printWindow.document.body.insertAdjacentHTML('beforeend', printButton);
 
-  // Trigger the print dialog
-  printWindow.print();
+            // Close the document to prevent overwriting
+            function printLabels() {
+                // Get mailing labels container
+                var labelContainer = document.getElementById('label_container');
 
-  // Close the new window or iframe
-  printWindow.close();
-}
+                // Create a new tab
+                var printWindow = window.open('', '_blank');
+
+                // Write mailing labels HTML to new tab
+                printWindow.document.write('<html><head><title>Mailing Labels</title>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(labelContainer.innerHTML);
+                printWindow.document.write('</body></html>');
+
+                // Inject print button and styles into the new tab
+                var styles = `
+    <style>
+      .print-button {
+        margin: 20px;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .print-button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  `;
+                var printButton = '<button class="print-button" onclick="window.print()">Print</button>';
+                printWindow.document.head.insertAdjacentHTML('beforeend', styles);
+                printWindow.document.body.insertAdjacentHTML('beforeend', printButton);
+
+                // Close the document to prevent overwriting
+
+                function printLabels() {
+                    // Get mailing labels container
+                    var labelContainer = document.getElementById('label_container');
+
+                    // Create a new tab
+                    var printWindow = window.open('', '_blank');
+
+                    // Write mailing labels HTML to new tab
+                    printWindow.document.write('<html><head><title>Mailing Labels</title>');
+                    printWindow.document.write('</head><body>');
+                    printWindow.document.write(labelContainer.innerHTML);
+                    printWindow.document.write('</body></html>');
+
+                    // Inject print button and styles into the new tab
+                    var styles = `
+    <style>
+      .print-button {
+        margin: 20px;
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .print-button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  `;
+                    var printButton = '<button class="print-button" onclick="window.print()">Print</button>';
+                    printWindow.document.head.insertAdjacentHTML('beforeend', styles);
+                    printWindow.document.body.insertAdjacentHTML('beforeend', printButton);
+
+                    // Close the document to prevent overwriting
+                    printWindow.document.close();
+                }
+            }
+        };
 
 
     </script>
