@@ -263,24 +263,36 @@
 
 
         function printLabels() {
-            // Get mailing labels container
-            var labelContainer = document.getElementById('label_container');
+  // Get mailing labels container
+  var labelContainer = document.getElementById('label_container');
 
-            // Create new window to display the mailing labels
-            var printWindow = window.open('', '', 'height=600,width=800');
+  // Create a new window or iframe to display the mailing labels
+  var printWindow = window.open('', '', 'height=600,width=800');
 
-            // Write mailing labels HTML to new window
-            printWindow.document.write('<html><head><title>Mailing Labels</title>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(labelContainer.innerHTML);
-            printWindow.document.write('</body></html>');
+  // Write mailing labels HTML to new window
+  printWindow.document.write('<html><head><title>Mailing Labels</title>');
+  printWindow.document.write('<link rel="stylesheet" type="text/css" href="print-styles.css">');
+  printWindow.document.write('</head><body>');
+  printWindow.document.write(labelContainer.innerHTML);
+  printWindow.document.write('</body></html>');
 
-            // Print the mailing labels
-            printWindow.print();
+  // Inject print styles into the new window or iframe
+  var styles = `
+    <style>
+      @media print {
+        /* Add print-specific styles here */
+      }
+    </style>
+  `;
+  printWindow.document.head.insertAdjacentHTML('beforeend', styles);
 
-            // Close the new window
-            printWindow.close();
-        }
+  // Trigger the print dialog
+  printWindow.print();
+
+  // Close the new window or iframe
+  printWindow.close();
+}
+
 
     </script>
 </body>
