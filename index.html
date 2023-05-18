@@ -261,26 +261,34 @@
         }
 
 
-
         function printLabels() {
             // Get mailing labels container
             var labelContainer = document.getElementById('label_container');
 
             // Create new window to display the mailing labels
-            var printWindow = window.open('', '', 'height=600,width=800');
+            var printWindow = window.open('', '_blank');
 
             // Write mailing labels HTML to new window
             printWindow.document.write('<html><head><title>Mailing Labels</title>');
+            printWindow.document.write('<style>body { margin: 0; }</style>');
             printWindow.document.write('</head><body>');
             printWindow.document.write(labelContainer.innerHTML);
             printWindow.document.write('</body></html>');
 
-            // Print the mailing labels
-            printWindow.print();
+            // Wait for the window content to load before triggering print
+            printWindow.document.addEventListener('DOMContentLoaded', function () {
+                // Print the mailing labels
+                setTimeout(function () {
+                    printWindow.print();
 
-            // Close the new window
-            printWindow.close();
+                    // Close the new window after a short delay
+                    setTimeout(function () {
+                        printWindow.close();
+                    }, 100);
+                }, 100);
+            });
         }
+
 
     </script>
 </body>
