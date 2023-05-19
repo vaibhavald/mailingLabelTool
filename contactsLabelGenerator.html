@@ -1,88 +1,159 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Google People API Contacts</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/platform.js?onload=initGoogleSignIn" async defer></script>
-  <script>
-    // Constants
-    const CLIENT_ID = '509563891606-7e8onpesfmdop1ne2mc2enhm76nbqqhi.apps.googleusercontent.com';
-    const API_KEY = 'AIzaSyCwgToPvB9luZ0poJ0cDZLArydQM_zGQdI';
-
-    // Array to store contact names
-    var contactNames = [];
-
-    // Initialize Google Sign-In
-    function initGoogleSignIn() {
-      google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: handleCredentialResponse
-      });
-    }
-
-    // Handle the user's credential response
-    function handleCredentialResponse(response) {
-      if (response.credential) {
-        var credential = response.credential;
-
-        // Request contacts using the access token
-        gapi.load('client', function () {
-          gapi.client.init({
-            apiKey: API_KEY,
-            clientId: CLIENT_ID,
-            discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1'],
-            scope: 'https://www.googleapis.com/auth/contacts.readonly'
-          }).then(function () {
-            gapi.auth2.getAuthInstance().signIn({
-              id_token: credential
-            }).then(function () {
-              // API request to get contacts
-              gapi.client.people.people.connections.list({
-                resourceName: 'people/me',
-                pageSize: 10,
-                personFields: 'names'
-              }).then(function (response) {
-                var connections = response.result.connections;
-                if (connections && connections.length > 0) {
-                  for (var i = 0; i < connections.length; i++) {
-                    var contact = connections[i];
-                    var names = contact.names;
-                    if (names && names.length > 0) {
-                      var name = names[0].displayName;
-                      contactNames.push(name);
-                    }
-                  }
-                  populateDropdown();
-                } else {
-                  console.log('No contacts found.');
-                }
-              }, function (error) {
-                console.error('Error loading contacts:', error);
-              });
-            });
-          });
-        });
-      }
-    }
-
-    // Populate the dropdown with contact names
-    function populateDropdown() {
-      var dropdown = document.getElementById('contactDropdown');
-      for (var i = 0; i < contactNames.length; i++) {
-        var option = document.createElement('option');
-        option.value = contactNames[i];
-        option.text = contactNames[i];
-        dropdown.appendChild(option);
-      }
-    }
-  </script>
+    <title>People API Quickstart</title>
+    <meta charset="utf-8" />
 </head>
+
 <body>
-  <h1>Google People API Contacts</h1>
-  <div id="g_id_onload"
-       data-client_id="509563891606-7e8onpesfmdop1ne2mc2enhm76nbqqhi.apps.googleusercontent.com"
-       data-callback="handleCredentialResponse"></div>
-  <div class="g_id_signin" data-type="standard"></div>
-  <select id="contactDropdown"></select>
+    <p>People API Quickstart</p>
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
+
+    <pre id="content" style="white-space: pre-wrap;"></pre>
+
+    <script type="text/javascript">
+        /* exported gapiLoaded */
+        /* exported gisLoaded */
+        /* exported handleAuthClick */
+        /* exported handleSignoutClick */
+
+        // TODO(developer): Set to client ID and API key from the Developer Console
+
+        const CLIENT_ID = '509563891606-7e8onpesfmdop1ne2mc2enhm76nbqqhi.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyCwgToPvB9luZ0poJ0cDZLArydQM_zGQdI';
+
+        // Discovery doc URL for APIs used by the quickstart
+        const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/people/v1/rest';
+
+        // Authorization scopes required by the API; multiple scopes can be
+        // included, separated by spaces.
+        const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+
+        document.getElementById('authorize_button').style.visibility = 'hidden';
+        document.getElementById('signout_button').style.visibility = 'hidden';
+
+        /**
+         * Callback after api.js is loaded.
+         */
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        /**
+         * Callback after the API client is loaded. Loads the
+         * discovery doc to initialize the API.
+         */
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: [DISCOVERY_DOC],
+            });
+            gapiInited = true;
+            maybeEnableButtons();
+        }
+
+        /**
+         * Callback after Google Identity Services are loaded.
+         */
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // defined later
+            });
+            gisInited = true;
+            maybeEnableButtons();
+        }
+
+        /**
+         * Enables user interaction after all libraries are loaded.
+         */
+        function maybeEnableButtons() {
+            if (gapiInited && gisInited) {
+                document.getElementById('authorize_button').style.visibility = 'visible';
+            }
+        }
+
+        /**
+         *  Sign in the user upon button click.
+         */
+        function handleAuthClick() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    throw (resp);
+                }
+                document.getElementById('signout_button').style.visibility = 'visible';
+                document.getElementById('authorize_button').innerText = 'Refresh';
+                await listConnectionNames();
+            };
+
+            if (gapi.client.getToken() === null) {
+                // Prompt the user to select a Google Account and ask for consent to share their data
+                // when establishing a new session.
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            } else {
+                // Skip display of account chooser and consent dialog for an existing session.
+                tokenClient.requestAccessToken({ prompt: '' });
+            }
+        }
+
+        /**
+         *  Sign out the user upon button click.
+         */
+        function handleSignoutClick() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token);
+                gapi.client.setToken('');
+                document.getElementById('content').innerText = '';
+                document.getElementById('authorize_button').innerText = 'Authorize';
+                document.getElementById('signout_button').style.visibility = 'hidden';
+            }
+        }
+
+        /**
+         * Print the display name if available for 10 connections.
+         */
+        async function listConnectionNames() {
+            let response;
+            try {
+                // Fetch first 10 files
+                response = await gapi.client.people.people.connections.list({
+                    'resourceName': 'people/me',
+                    'pageSize': 10,
+                    'personFields': 'names,emailAddresses',
+                });
+            } catch (err) {
+                document.getElementById('content').innerText = err.message;
+                return;
+            }
+            const connections = response.result.connections;
+            if (!connections || connections.length == 0) {
+                document.getElementById('content').innerText = 'No connections found.';
+                return;
+            }
+            // Flatten to string to display
+            const output = connections.reduce(
+                (str, person) => {
+                    if (!person.names || person.names.length === 0) {
+                        return `${str}Missing display name\n`;
+                    }
+                    return `${str}${person.names[0].displayName}\n`;
+                },
+                'Connections:\n');
+            document.getElementById('content').innerText = output;
+        }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
+
 </html>
