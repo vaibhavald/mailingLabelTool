@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Contacts Search</title>
+</head>
+<body>
+  <h1>Google Contacts Search</h1>
+
+  <label for="contactSearch">Search for a contact:</label>
+  <select id="contactSearch">
+    <option value="">Select a contact</option>
+  </select>
+
+  <script>
+    // Load the Google Contacts API
+    function loadContactsAPI() {
+      gapi.load('client', initContactsAPI);
+    }
+
+    // Initialize the Google Contacts API
+    function initContactsAPI() {
+      gapi.client.init({
+        apiKey: 'AIzaSyBKaC7B4mjgFj56uH7cbiS3ZXoFxlMjtoM',
+        discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1'],
+      }).then(function() {
+        loadContacts();
+      }).catch(function(error) {
+        console.error('Error initializing Google Contacts API:', error);
+      });
+    }
+
+    // Load and display the contacts in the dropdown
+    function loadContacts() {
+      gapi.client.people.people.connections.list({
+        resourceName: 'people/me',
+        pageSize: 1000,
+        personFields: 'names',
+      }).then(function(response) {
+        var contacts = response.result.connections;
+        var select = document.getElementById('contactSearch');
+
+        contacts.forEach(function(contact) {
+          var option = document.createElement('option');
+          option.value = contact.resourceName;
+          option.text = contact.names[0].displayName;
+          select.appendChild(option);
+        });
+      }).catch(function(error) {
+        console.error('Error loading contacts:', error);
+      });
+    }
+
+    // Handle the selected contact from the dropdown
+    function handleContactSelection() {
+      var selectedContact = document.getElementById('contactSearch').value;
+      if (selectedContact) {
+        console.log('Selected contact:', selectedContact);
+        // You can perform further actions with the selected contact here
+      }
+    }
+
+    // Load the Google API client library
+    function loadGoogleAPI() {
+      var script = document.createElement('script');
+      script.src = 'https://apis.google.com/js/api.js';
+      script.onload = function() {
+        loadContactsAPI();
+      };
+      document.head.appendChild(script);
+    }
+
+    // Call the function to load the Google API client library
+    loadGoogleAPI();
+  </script>
+</body>
+</html>
