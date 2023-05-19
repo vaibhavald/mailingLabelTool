@@ -1,57 +1,66 @@
-
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Google People API Contacts</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
-    // Client ID and API key from the Google API Console
-    // var CLIENT_ID = 'YOUR_CLIENT_ID';
-    // var API_KEY = 'YOUR_API_KEY';
+    // Client ID from the Google API Console
     var CLIENT_ID = '509563891606-7e8onpesfmdop1ne2mc2enhm76nbqqhi.apps.googleusercontent.com';
-    var API_KEY = 'AIzaSyCwgToPvB9luZ0poJ0cDZLArydQM_zGQdI';
 
     // Array to store contact names
     var contactNames = [];
 
-    // Load the API client and make an API request
-    function loadContacts() {
-      gapi.load('client', initClient);
+    // Load the Google Sign-In API client and initialize
+    function loadGoogleSignIn() {
+      google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: handleCredentialResponse
+      });
     }
 
-    // Initialize the API client and make the request
-    function initClient() {
-      gapi.client.init({
-        apiKey: API_KEY,
-        clientId: CLIENT_ID,
-        discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1'],
-        scope: 'https://www.googleapis.com/auth/contacts.readonly'
-      }).then(function () {
-        // API request to get contacts
-        gapi.client.people.people.connections.list({
-          resourceName: 'people/me',
-          pageSize: 10,
-          personFields: 'names'
-        }).then(function (response) {
-          var connections = response.result.connections;
-          if (connections && connections.length > 0) {
-            for (var i = 0; i < connections.length; i++) {
-              var contact = connections[i];
-              var names = contact.names;
-              if (names && names.length > 0) {
-                var name = names[0].displayName;
-                contactNames.push(name);
+    // Handle the user's credential response
+    function handleCredentialResponse(response) {
+      if (response.credential) {
+        var credential = response.credential;
+
+        // Request contacts using the access token
+        gapi.load('client', function () {
+          gapi.client.init({
+            apiKey: 'AIzaSyCwgToPvB9luZ0poJ0cDZLArydQM_zGQdI',
+            clientId: CLIENT_ID,
+            discoveryDocs: ['https://people.googleapis.com/$discovery/rest?version=v1'],
+            scope: 'https://www.googleapis.com/auth/contacts.readonly'
+          }).then(function () {
+            gapi.auth.setToken({
+              access_token: credential
+            });
+
+            // API request to get contacts
+            gapi.client.people.people.connections.list({
+              resourceName: 'people/me',
+              pageSize: 10,
+              personFields: 'names'
+            }).then(function (response) {
+              var connections = response.result.connections;
+              if (connections && connections.length > 0) {
+                for (var i = 0; i < connections.length; i++) {
+                  var contact = connections[i];
+                  var names = contact.names;
+                  if (names && names.length > 0) {
+                    var name = names[0].displayName;
+                    contactNames.push(name);
+                  }
+                }
+                populateDropdown();
+              } else {
+                console.log('No contacts found.');
               }
-            }
-            populateDropdown();
-          } else {
-            console.log('No contacts found.');
-          }
-        }, function (error) {
-          console.error('Error loading contacts:', error);
+            }, function (error) {
+              console.error('Error loading contacts:', error);
+            });
+          });
         });
-      });
+      }
     }
 
     // Populate the dropdown with contact names
@@ -64,16 +73,15 @@
         dropdown.appendChild(option);
       }
     }
-
-    // Handle Google API client load error
-    function handleClientLoadError(error) {
-      console.error('Error loading Google API client:', error);
-    }
   </script>
-  <script src="https://apis.google.com/js/api.js?onload=loadContacts&onerror=handleClientLoadError" async defer></script>
 </head>
 <body>
   <h1>Google People API Contacts</h1>
+  <div id="g_id_onload"
+       data-client_id="YOUR_CLIENT_ID"
+       data-callback="handleCredentialResponse"
+       data-auto_select="true"></div>
   <select id="contactDropdown"></select>
+  <script src="https://apis.google.com/js/platform.js?onload=loadGoogleSignIn" async defer></script>
 </body>
 </html>
