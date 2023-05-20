@@ -177,7 +177,7 @@
             // Get form inputs
             var fromAddress = document.getElementById('from_address').value;
             var toAddresses = document.getElementById('to_addresses').value;
-            var addresses = toAddresses.split('\n\n');
+            var addresses = toAddresses.split('_____');
 
             // Define mailing label template
             var labelTemplate = `
@@ -204,7 +204,7 @@
             var labelContainer = document.getElementById('label_container');
             labelContainer.innerHTML = '';
             addresses.forEach(function (address) {
-                if (address.trim() !== '') { // check if the address is not empty
+                if (address.trim() !== '' && address.trim() !== '_____') { // check if the address is not empty
                     var lines = splitAddressIntoLines(address.trim());
                     var formattedMobile = lines[3].replace(/\s+/g, ''); // remove spaces from mobile number
                     lines[3] = formattedMobile ? 'Mobile: - ' + formattedMobile : ''; // set 4th line as "Mobile: -" with mobile number
@@ -480,7 +480,8 @@
                     const selectedName = event.target.dataset.name;
                     const selectedAddress = event.target.dataset.address;
                     if (selectedName + selectedAddress) {
-                        const toAddressesLabel = `${selectedName} ${selectedAddress} \n\n`
+                        const existingAddressLabel = document.getElementById('to_addresses').value;
+                        const toAddressesLabel = `${selectedName} ${selectedAddress}>_____${existingAddressLabel}`;
                         document.getElementById('to_addresses').innerText = toAddressesLabel;
                         console.log('Selected Name:', toAddressesLabel);
                         console.log('Selected Address:', selectedAddress);
