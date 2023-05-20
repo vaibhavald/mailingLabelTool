@@ -4,16 +4,63 @@
 <head>
     <title>People API Quickstart</title>
     <meta charset="utf-8" />
+
+    <style>
+        /* CSS styles for the search bar and content area */
+        #search_container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        #search_input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: none;
+            outline: none;
+            width: 300px;
+            margin-bottom: 8px;
+        }
+
+        #search_input:focus {
+            border-color: #6c63ff;
+        }
+
+        #search_results {
+            padding: 8px;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 300px;
+            display: none;
+        }
+
+        #search_results .connection {
+            display: block;
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+    </style>
+
+
 </head>
 
 <body>
     <p>People API Quickstart</p>
 
-    <!-- Remove the authorize button -->
+    <!-- Update the search bar and content area with the new styles -->
+    <div id="search_container">
+        <input type="text" id="search_input" oninput="searchConnections()" placeholder="Search...">
+        <div id="search_results"></div>
+    </div>
 
     <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
 
     <pre id="content" style="white-space: pre-wrap;"></pre>
+
 
     <script type="text/javascript">
         /* exported gapiLoaded */
@@ -36,6 +83,66 @@
         let tokenClient;
         let gapiInited = false;
         let gisInited = false;
+
+        let connectionsSearch = []; // Global variable for connections
+
+        function searchConnections() {
+            const inputValue = document.getElementById('search_input').value.trim().toLowerCase();
+            const matchingConnections = [];
+
+            if (inputValue.length >= 3) {
+                const filteredConnections = connectionsSearch.filter((connection) => {
+                    return (
+                        (connection.name && connection.name.toLowerCase().includes(inputValue)) ||
+                        (connection.address && connection.address.toLowerCase().includes(inputValue))
+                    );
+                });
+
+                matchingConnections.push(...filteredConnections);
+            }
+
+            displayConnections(matchingConnections);
+        }
+
+        /**
+      * Display the connections in the content area.
+      * @param {Array} connections - Array of connections to display.
+      */
+        function displayConnections(connections) {
+            let output = '';
+            connections.forEach((contact) => {
+                if (contact.name && contact.address) {
+                    output += `<span class="connection" data-name="${contact.name}" data-address="${contact.address}">${contact.name} - ${contact.address}</span>\n`;
+                } else if (contact.name) {
+                    output += `<span class="connection" data-name="${contact.name}">${contact.name}</span>\n`;
+                } else if (contact.address) {
+                    output += `<span class="connection" data-address="${contact.address}">${contact.address}</span>\n`;
+                }
+            });
+
+            const searchResultsContainer = document.getElementById('search_results');
+            if (connections.length > 0) {
+                searchResultsContainer.style.display = 'block';
+                searchResultsContainer.innerHTML = output;
+            } else {
+                searchResultsContainer.style.display = 'none';
+                searchResultsContainer.innerHTML = '';
+            }
+
+            // Add event listeners for selecting a connection
+            const connectionElements = document.getElementsByClassName('connection');
+            Array.from(connectionElements).forEach((element) => {
+                element.addEventListener('click', function (event) {
+                    const selectedName = event.target.dataset.name;
+                    const selectedAddress = event.target.dataset.address;
+                    if (selectedName && selectedAddress) {
+                        console.log('Selected Name:', selectedName);
+                        console.log('Selected Address:', selectedAddress);
+                    }
+                });
+            });
+        }
+
 
         document.getElementById('signout_button').style.visibility = 'hidden';
 
@@ -132,6 +239,9 @@
         /**
  * Print the name and address if available for all connections in sorted order.
  */
+        /**
+ * Print the display name if available for all connections in sorted order.
+ */
         async function listConnectionNames() {
             let response;
             try {
@@ -151,15 +261,14 @@
             }
 
             // Extract names and addresses from connections
-            const contacts = connections.map((person) => {
+            connectionsData = connections.map((person) => {
                 const name = person.names && person.names[0] && person.names[0].displayName;
                 const address = person.addresses && person.addresses[0] && person.addresses[0].formattedValue;
                 return { name, address };
             });
 
-
             // Sort the contacts by name
-            contacts.sort((a, b) => {
+            connectionsData.sort((a, b) => {
                 if (a.name && b.name) {
                     return a.name.localeCompare(b.name);
                 } else if (a.name) {
@@ -170,20 +279,24 @@
                 return 0;
             });
 
+            // Store connections in the global variable
+            connectionsSearch = connectionsData;
 
-            // Create the output string
-            let output = 'Connections:\n';
-            contacts.forEach((contact) => {
-                if (contact.name && contact.address) {
-                    output += contact.name + ' - ' + contact.address + '\n';
-                } else if (contact.name) {
-                    output += contact.name + '\n';
-                } else if (contact.address) {
-                    output += contact.address + '\n';
-                }
-            });
+            // Display the connections
+            displayConnections(connections);
 
-            document.getElementById('content').innerText = output;
+
+            // Add event listener for selecting a connection
+            // const content = document.getElementById('content');
+            // console.log("content", content);
+            // content.addEventListener('click', function (event) {
+            //     const selectedName = event.target.dataset.name;
+            //     const selectedAddress = event.target.dataset.address;
+            //     if (selectedName && selectedAddress) {
+            //         console.log('Selected Name:', selectedName);
+            //         console.log('Selected Address:', selectedAddress);
+            //     }
+            // });
         }
 
 
