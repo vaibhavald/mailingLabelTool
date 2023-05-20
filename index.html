@@ -2,385 +2,195 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <title>Mailing Label Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 36px;
-            color: #333;
-            margin: 30px 0;
-        }
-
-        form {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-        }
-
-        label {
-            display: block;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        textarea {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        button {
-            display: inline-block;
-            background-color: #333;
-            color: #fff;
-            padding: 10px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #666;
-        }
-
-        #label_container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            page-break-inside: avoid;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        td {
-            border: 1px solid black;
-            padding: 10px;
-            vertical-align: top;
-            border-radius: 10%;
-        }
-
-        @media only screen and (max-width: 768px) {
-            form {
-                padding: 20px;
-            }
-
-            textarea {
-                margin-bottom: 10px;
-            }
-        }
-
-        @media only screen and (max-width: 480px) {
-            h1 {
-                font-size: 28px;
-                margin: 20px 0;
-            }
-
-            form {
-                padding: 10px;
-            }
-
-            textarea {
-                margin-bottom: 5px;
-                font-size: 14px;
-            }
-
-            button {
-                font-size: 16px;
-            }
-
-            #label_container {
-                padding: 10px;
-            }
-
-            td {
-                font-size: 14px;
-                padding: 8px;
-            }
-        }
-    </style>
+    <title>People API Quickstart</title>
+    <meta charset="utf-8" />
 </head>
 
 <body>
-    <h1>Mailing Label Generator</h1>
-    <form>
-        <label for="from_address">From:</label>
-        <textarea id="from_address" name="from_address" rows="3"
-            disabled="disabled">Udai Srivastava<br>Kumud Cottage, 503K/1R, Rajrooppur<br>Prayagraj-211011, Mobile: +91-9415267861</textarea>
-        <br>
-        <label for="to_addresses">To:</label>
-        <textarea id="to_addresses" name="to_addresses" rows="10"></textarea>
-        <br>
-        <button type="button" onclick="generateLabels()">Generate Labels</button>
-        <button type="button" onclick="printLabels()">Print Labels</button>
-    </form>
-    <br>
-    <div id="label_container"></div>
-    <script>
+    <p>People API Quickstart</p>
 
-        function generateLabels() {
-            // Get form inputs
-            var fromAddress = document.getElementById('from_address').value;
-            var toAddresses = document.getElementById('to_addresses').value;
-            var addresses = toAddresses.split('\n\n');
+    <!-- Remove the authorize button -->
 
-            // Define mailing label template
-            var labelTemplate = `
-        <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid;">
-            <tr>
-                <td style="text-align: center; font-size: 20px; font-weight: bold; border: 1px solid black; padding: 10px;">Vaibhav Law House</td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid black; padding: 10px;">
-                    <div style="font-weight: bold;">Deliver To:</div>
-                    <div>{{line1}}</div>
-                    <div>{{line2}}</div>
-                    <div>{{line3}}</div>
-                    <div>{{line4}}</div>
-                    <br>
-                    <div style="font-weight: bold; text-align: right;">If undelivered return to:</div>
-                    <div style="text-align: right;">${fromAddress}</div>
-                </td>
-            </tr>
-        </table>
-    `;
+    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
 
-            // Generate mailing labels and display them
-            var labelContainer = document.getElementById('label_container');
-            labelContainer.innerHTML = '';
-            addresses.forEach(function (address) {
-                if (address.trim() !== '') { // check if the address is not empty
-                    var lines = splitAddressIntoLines(address.trim());
-                    var formattedMobile = lines[3].replace(/\s+/g, ''); // remove spaces from mobile number
-                    lines[3] = formattedMobile ? 'Mobile: - ' + formattedMobile : ''; // set 4th line as "Mobile: -" with mobile number
-                    var label = labelTemplate.replace('{{line1}}', capitalizeFirstLetter(lines[0]))
-                        .replace('{{line2}}', capitalizeFirstLetter(lines[1] || ''))
-                        .replace('{{line3}}', capitalizeFirstLetter(lines[2] || ''))
-                        .replace('{{line4}}', capitalizeFirstLetter(lines[3] || ''));
-                    labelContainer.innerHTML += label;
-                    labelContainer.innerHTML += '<br>'; // Add line break between tables
+    <pre id="content" style="white-space: pre-wrap;"></pre>
+
+    <script type="text/javascript">
+        /* exported gapiLoaded */
+        /* exported gisLoaded */
+        /* exported handleAuthClick */
+        /* exported handleSignoutClick */
+
+        // TODO(developer): Set to client ID and API key from the Developer Console
+
+        const CLIENT_ID = '509563891606-7e8onpesfmdop1ne2mc2enhm76nbqqhi.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyCwgToPvB9luZ0poJ0cDZLArydQM_zGQdI';
+
+        // Discovery doc URL for APIs used by the quickstart
+        const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/people/v1/rest';
+
+        // Authorization scopes required by the API; multiple scopes can be
+        // included, separated by spaces.
+        const SCOPES = 'https://www.googleapis.com/auth/contacts.readonly';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+
+        document.getElementById('signout_button').style.visibility = 'hidden';
+
+        /**
+         * Callback after api.js is loaded.
+         */
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        /**
+         * Callback after the API client is loaded. Loads the
+         * discovery doc to initialize the API.
+         */
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: [DISCOVERY_DOC],
+            });
+            gapiInited = true;
+            maybeEnableButtons();
+
+            // Call the handleAuthClick function on page load to authorize the user
+            await handleAuthClick();
+        }
+
+        /**
+         * Callback after Google Identity Services are loaded.
+         */
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '', // defined later
+            });
+            gisInited = true;
+            maybeEnableButtons();
+        }
+
+        /**
+         * Enables user interaction after all libraries are loaded.
+         */
+        function maybeEnableButtons() {
+            if (gapiInited && gisInited) {
+                document.getElementById('signout_button').style.visibility = 'visible';
+            }
+        }
+
+        /**
+         *  Sign out the user upon button click.
+         */
+        function handleSignoutClick() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token);
+                gapi.client.setToken('');
+                document.getElementById('content').innerText = '';
+                document.getElementById('signout_button').style.visibility = 'hidden';
+            }
+        }
+
+        /**
+         *  Authorize the user and fetch connection names.
+         */
+        /**
+ * Sign in the user upon button click.
+ */
+        function handleAuthClick() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    throw resp;
+                }
+                document.getElementById('signout_button').style.visibility = 'visible';
+                await listConnectionNames();
+            };
+
+            if (gapi.client.getToken() === null) {
+                // Prompt the user to select a Google Account and ask for consent to share their data
+                // when establishing a new session.
+                tokenClient.requestAccessToken({ prompt: 'none' });
+            } else {
+                // Skip display of account chooser and consent dialog for an existing session.
+                tokenClient.requestAccessToken({ prompt: '' });
+            }
+        }
+
+
+        /**
+         * Print the display name if available for 10 connections.
+         */
+        /**
+ * Print the display name if available for all connections in sorted order.
+ */
+        /**
+ * Print the name and address if available for all connections in sorted order.
+ */
+        async function listConnectionNames() {
+            let response;
+            try {
+                response = await gapi.client.people.people.connections.list({
+                    'resourceName': 'people/me',
+                    'pageSize': 2000,
+                    'personFields': 'names,emailAddresses,addresses',
+                });
+            } catch (err) {
+                document.getElementById('content').innerText = err.message;
+                return;
+            }
+            const connections = response.result.connections;
+            if (!connections || connections.length == 0) {
+                document.getElementById('content').innerText = 'No connections found.';
+                return;
+            }
+
+            // Extract names and addresses from connections
+            const contacts = connections.map((person) => {
+                const name = person.names && person.names[0] && person.names[0].displayName;
+                const address = person.addresses && person.addresses[0] && person.addresses[0].formattedValue;
+                return { name, address };
+            });
+
+
+            // Sort the contacts by name
+            contacts.sort((a, b) => {
+                if (a.name && b.name) {
+                    return a.name.localeCompare(b.name);
+                } else if (a.name) {
+                    return -1;
+                } else if (b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+
+
+            // Create the output string
+            let output = 'Connections:\n';
+            contacts.forEach((contact) => {
+                if (contact.name && contact.address) {
+                    output += contact.name + ' - ' + contact.address + '\n';
+                } else if (contact.name) {
+                    output += contact.name + '\n';
+                } else if (contact.address) {
+                    output += contact.address + '\n';
                 }
             });
+
+            document.getElementById('content').innerText = output;
         }
 
-
-        function splitAddressIntoLines(address) {
-            console.log("Address->", address);
-            var lines = ['', '', '', ''];
-            var words = address.split(' ');
-            var currentLineIndex = 0;
-            var mobileNoIndex = -1;
-            words.forEach(function (word) {
-                if (lines[currentLineIndex].length + word.length + 1 <= 30) {
-                    lines[currentLineIndex] += word + ' ';
-                } else {
-                    currentLineIndex++;
-                    if (currentLineIndex > 2) {
-                        currentLineIndex = 2;
-                    }
-                    lines[currentLineIndex] += word + ' ';
-                }
-                if (word.includes(',')) {
-                    lines[currentLineIndex] = lines[currentLineIndex].replace(/,/g, ', ');
-                }
-            });
-            // Remove everything after pincode in line 3
-            var pincodeRegex = /(?:\b|\D)\d(?:\s?\d){5}(?:\b|\D)/;
-            var pincodeMatch = lines[2].match(pincodeRegex);
-            var mobileNumberLine = lines[2];
-            if (pincodeMatch) {
-                lines[2] = lines[2].substring(0, pincodeMatch.index + pincodeMatch[0].length);
-                var mobileNoMatch = mobileNumberLine.substring(pincodeMatch.index + pincodeMatch[0].length, mobileNumberLine.length);
-                // var mobileNoMatch = extractMobileNumber(mobileNumberLine);
-                lines[3] = mobileNoMatch.replace(/\D/g, "").trim();
-                return lines;
-            }
-            return lines;
-        }
-
-        function capitalizeFirstLetter(string) {
-            var words = string.split(' ');
-            var capitalizedWords = words.map(function (word) {
-                var capitalizedWord = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                var dotIndex = capitalizedWord.indexOf('.');
-                if (dotIndex !== -1 && dotIndex + 1 < capitalizedWord.length) {
-                    capitalizedWord = capitalizedWord.slice(0, dotIndex + 1) + capitalizedWord.charAt(dotIndex + 1).toUpperCase() + capitalizedWord.slice(dotIndex + 2);
-                }
-                return capitalizedWord;
-            });
-            return capitalizedWords.join(' ');
-        }
-
-        function extractMobileNumber(str) {
-            const regex = /^(?:Mob|Mobile).*?(\+?\d{2}-?\s?\d{10}|\d{10})/;
-            const match = str.match(regex);
-            if (match && match.length > 1) {
-                return match[1].replace(/\D/g, ''); // Remove non-digit characters
-            }
-            return null; // Return null if no mobile number is found
-        }
-
-
-        function formatIndianAddress(address) {
-            const regex = /^([A-Za-z.\s]+)\s*([a-z\s]+),\s*(\w+\s*\w*)\.\s*(.*?),\s*(.*?),\s*(.*?),\s*(.*?),\s*(\d{6})\s*mob[^\d]*(\d+)/i;
-            const match = address.match(regex);
-            if (!match) {
-                return null;
-            }
-            const [_, title, name, designation, street, locality, city, state, pinCode, mobile] = match;
-            const formattedAddress = `${title.trim()} ${name.trim()}, ${designation.trim()}\n${street.trim()},\n${locality.trim()},\n${city.trim()} - ${pinCode.trim()},\n${state.trim()}\nMobile: ${mobile.trim()}`;
-            return formattedAddress;
-        }
-
-
-
-        function printLabels() {
-            // Get mailing labels container
-            var labelContainer = document.getElementById('label_container');
-
-            // Create a new tab
-            var printWindow = window.open('', '_blank');
-
-            // Write mailing labels HTML to new tab
-            printWindow.document.write('<html><head><title>Mailing Labels</title>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(labelContainer.innerHTML);
-            printWindow.document.write('</body></html>');
-
-            // Inject print button and styles into the new tab
-            var styles = `
-    <style>
-      .print-button {
-        margin: 20px;
-        padding: 10px 20px;
-        font-size: 18px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .print-button:hover {
-        background-color: #45a049;
-      }
-    </style>
-  `;
-            var printButton = '<button class="print-button" onclick="window.print()">Print</button>';
-            printWindow.document.head.insertAdjacentHTML('beforeend', styles);
-            printWindow.document.body.insertAdjacentHTML('beforeend', printButton);
-
-            // Close the document to prevent overwriting
-            function printLabels() {
-                // Get mailing labels container
-                var labelContainer = document.getElementById('label_container');
-
-                // Create a new tab
-                var printWindow = window.open('', '_blank');
-
-                // Write mailing labels HTML to new tab
-                printWindow.document.write('<html><head><title>Mailing Labels</title>');
-                printWindow.document.write('</head><body>');
-                printWindow.document.write(labelContainer.innerHTML);
-                printWindow.document.write('</body></html>');
-
-                // Inject print button and styles into the new tab
-                var styles = `
-    <style>
-      .print-button {
-        margin: 20px;
-        padding: 10px 20px;
-        font-size: 18px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .print-button:hover {
-        background-color: #45a049;
-      }
-    </style>
-  `;
-                var printButton = '<button class="print-button" onclick="window.print()">Print</button>';
-                printWindow.document.head.insertAdjacentHTML('beforeend', styles);
-                printWindow.document.body.insertAdjacentHTML('beforeend', printButton);
-
-                // Close the document to prevent overwriting
-
-                function printLabels() {
-                    // Get mailing labels container
-                    var labelContainer = document.getElementById('label_container');
-
-                    // Create a new tab
-                    var printWindow = window.open('', '_blank');
-
-                    // Write mailing labels HTML to new tab
-                    printWindow.document.write('<html><head><title>Mailing Labels</title>');
-                    printWindow.document.write('</head><body>');
-                    printWindow.document.write(labelContainer.innerHTML);
-                    printWindow.document.write('</body></html>');
-
-                    // Inject print button and styles into the new tab
-                    var styles = `
-    <style>
-      .print-button {
-        margin: 20px;
-        padding: 10px 20px;
-        font-size: 18px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .print-button:hover {
-        background-color: #45a049;
-      }
-    </style>
-  `;
-                    var printButton = '<button class="print-button" onclick="window.print()">Print</button>';
-                    printWindow.document.head.insertAdjacentHTML('beforeend', styles);
-                    printWindow.document.body.insertAdjacentHTML('beforeend', printButton);
-
-                    // Close the document to prevent overwriting
-                    printWindow.document.close();
-                }
-            }
-        };
 
 
     </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 
 </html>
