@@ -157,6 +157,7 @@
             var fromAddress = document.getElementById('from_address').value;
             var toAddresses = document.getElementById('to_addresses').value;
             var addresses = toAddresses.split('\n\n');
+            var showHeader = document.getElementById('show_header').checked;
 
             var headerHtml = showHeader
                 ? `<tr>
@@ -165,6 +166,7 @@
             </td>
         </tr>`
                 : '';
+
             // Define mailing label template
             var labelTemplate = `
         <table style="border-collapse: collapse; width: 100%; page-break-inside: avoid;">
